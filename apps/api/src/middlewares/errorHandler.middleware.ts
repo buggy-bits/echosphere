@@ -13,8 +13,8 @@ export const errorHandler = (
 ) => {
   if (process.env.NODE_ENV !== "production") {
     console.error(err.stack); // console log stack trace for debugging
+    console.log("Error handler middleware called");
   }
-  console.log("Error handler middleware called");
   res.status(err.status || 500).json({
     message: err.message || "Internal Server Error",
   });
