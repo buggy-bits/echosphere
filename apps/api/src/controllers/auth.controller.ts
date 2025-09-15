@@ -2,7 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { AppError } from "../middlewares/errorHandler.middleware";
 import UserModel, { UserType } from "../models/user.model";
 import bcrypt from "bcrypt";
-import { generateAccessToken, generateRefreshToken } from "../utils/token";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  TokenPayload,
+} from "../utils/token";
+import jwt from "jsonwebtoken";
+import { JWT_REFRESH_TOKEN_SECRET } from "../config/env";
 const saltRounds = 10;
 
 export const registerUser = async (
@@ -124,5 +130,46 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
   } catch (error) {
     next(error);
     return;
+  }
+};
+
+export const newAccessToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const refreshTokenObj = req.cookies && req.cookies.refreshToken;
+
+    const token = refreshTokenObj && refreshTokenObj.token;
+    if (!token) {
+      const error: AppError = new Error("Refresh token missing");
+      error.status = 401;
+      return next(error);
+    }
+
+    const payload = jwt.verify(
+      token,
+      JWT_REFRESH_TOKEN_SECRET || "i-am-key"
+    ) as TokenPayload;
+
+    const newToken = generateAccessToken({ userId: payload.userId });
+
+    res.status(200).json({
+      status: "success",
+      message: "New access token generated",
+      accessToken: newToken,
+    });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      const jwtError: AppError = new Error("Invalid refresh token");
+      jwtError.status = 401;
+      return next(jwtError);
+    } else if (error instanceof jwt.TokenExpiredError) {
+      const expiredError: AppError = new Error("Refresh token expired");
+      expiredError.status = 401;
+      return next(expiredError);
+    }
+    return next(error); // Handle other errors
   }
 };
