@@ -4,6 +4,7 @@ import ProjectModel, { ProjectType } from "../models/project.model";
 import { IAuthenticatedRequest } from "../middlewares/token.middleware";
 import UserModel from "../models/user.model";
 import { BACKEND_URL } from "../config/env";
+import mongoose from "mongoose";
 
 const BASE_URL = BACKEND_URL || "http://localhost:3000";
 
@@ -157,6 +158,47 @@ export const deleteSingleProject = async (
 
     res.status(200).json({
       status: "success",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateSingleProject = async (
+  req: IAuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      const error: AppError = new Error("No user authentication.");
+      error.status = 400;
+      throw error;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+    const { project } = req.body;
+
+    const existingProject = await ProjectModel.findOneAndReplace(
+      { _id: id },
+      project,
+      { new: true }
+    );
+
+    if (!existingProject) {
+      const error: AppError = new Error("No projects found.");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      status: "success",
+      project: existingProject,
     });
   } catch (error) {
     next(error);
