@@ -8,4 +8,5 @@ export const {
   DB_URI,
   JWT_REFRESH_TOKEN_SECRET,
   JWT_ACCESS_TOKEN_SECRET,
+  BACKEND_URL,
 } = process.env;
