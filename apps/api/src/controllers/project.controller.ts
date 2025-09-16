@@ -57,3 +57,69 @@ export const createProject = async (
     next(error);
   }
 };
+
+export const getAllProjects = async (
+  req: IAuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      const error: AppError = new Error("No user authentication.");
+      error.status = 400;
+      throw error;
+    }
+    const projects = await ProjectModel.find({ userId }).select(
+      "_id projectName createdAt"
+    );
+
+    if (!projects) {
+      const error: AppError = new Error("No projects found.");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "All projects found",
+      data: {
+        projects,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSingleProject = async (
+  req: IAuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      const error: AppError = new Error("No user authentication.");
+      error.status = 400;
+      throw error;
+    }
+    const existingProject = await ProjectModel.findOne({ _id: id });
+
+    if (!existingProject) {
+      const error: AppError = new Error("No projects found.");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "All projects found",
+      data: {
+        project: existingProject,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
