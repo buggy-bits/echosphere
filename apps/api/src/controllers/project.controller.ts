@@ -123,3 +123,42 @@ export const getSingleProject = async (
     next(error);
   }
 };
+
+export const deleteSingleProject = async (
+  req: IAuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      const error: AppError = new Error("No user authentication.");
+      error.status = 400;
+      throw error;
+    }
+
+    const existingProject = await ProjectModel.findOneAndDelete({ _id: id });
+
+    if (!existingProject) {
+      const error: AppError = new Error("No projects found.");
+      error.status = 404;
+      throw error;
+    }
+    // remove this project from user model
+    const user = await UserModel.findById(userId);
+    if (user) {
+      user.projects = user.projects.filter(
+        (projectId) => projectId.toString() !== existingProject._id.toString()
+      );
+      await user.save();
+    }
+
+    res.status(200).json({
+      status: "success",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
