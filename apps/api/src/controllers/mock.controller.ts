@@ -68,6 +68,15 @@ export const handleMockRequest = async (
         method as EndpointConfig["method"]
       ) || {};
 
+    if (!endpoint) {
+      res.status(404).json(
+        projectData.notFoundResponse || {
+          status: "error",
+          message: "Path not found",
+        }
+      );
+      return;
+    }
     setTimeout(() => {
       res.status(endpoint?.statusCode || 200).json(endpoint?.responseData);
     }, endpoint?.delay || 0);

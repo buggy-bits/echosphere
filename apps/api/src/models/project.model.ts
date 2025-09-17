@@ -6,9 +6,9 @@ export interface EndpointConfig {
   responseData: any;
   statusCode: number;
   delay: number;
-  // notFoundResponse: any;
 }
 export interface ProjectType extends Document {
+  notFoundResponse: any;
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   projectName: string;
@@ -67,9 +67,10 @@ const projectSchema = new mongoose.Schema({
       },
 
       // Optional field for a custom 404 response
-      // notFoundResponse: {
-      //   type: mongoose.Schema.Types.Mixed,
-      // },
+      notFoundResponse: {
+        type: mongoose.Schema.Types.Mixed,
+        default: { status: "error", message: "Path not found" },
+      },
     },
   ],
 
