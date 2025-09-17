@@ -26,7 +26,7 @@ export const createProject = async (
       userId: req?.user?.userId,
       projectName: project.projectName,
       endpoints: project.endpoints,
-      resources: project.resources,
+      // resources: project.resources,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

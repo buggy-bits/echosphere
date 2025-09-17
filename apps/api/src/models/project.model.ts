@@ -1,19 +1,19 @@
 import mongoose from "mongoose";
 
-interface EndpointConfig {
+export interface EndpointConfig {
   path: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
   responseData: any;
   statusCode: number;
   delay: number;
-  notFoundResponse: any;
+  // notFoundResponse: any;
 }
 export interface ProjectType extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   projectName: string;
   endpoints: EndpointConfig[];
-  resources: any;
+  // resources: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -67,17 +67,17 @@ const projectSchema = new mongoose.Schema({
       },
 
       // Optional field for a custom 404 response
-      notFoundResponse: {
-        type: mongoose.Schema.Types.Mixed,
-      },
+      // notFoundResponse: {
+      //   type: mongoose.Schema.Types.Mixed,
+      // },
     },
   ],
 
   // This object will store the data for CRUD operations
-  resources: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {},
-  },
+  // resources: {
+  //   type: mongoose.Schema.Types.Mixed,
+  //   default: {},
+  // },
 
   createdAt: {
     type: Date,
