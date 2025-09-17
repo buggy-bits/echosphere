@@ -5,6 +5,6 @@ import { verifyToken } from "../middlewares/token.middleware";
 
 const router = Router();
 
-router.all("/*path", verifyToken, handleMockRequest);
+router.all("/*path", handleMockRequest);
 
 export default router;

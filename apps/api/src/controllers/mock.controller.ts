@@ -52,46 +52,24 @@ export const handleMockRequest = async (
 ) => {
   try {
     const method = req.method;
-    const projectPayload = req.project;
-    const mockPath = req.path;
+    const projectData = req.project;
+    const mockApiPath = req.path;
 
-    if (!projectPayload) {
+    if (!projectData) {
       const error: AppError = new Error("Please specify an api id.");
       error.status = 400;
-      throw error;
-    }
-    if (!mongoose.Types.ObjectId.isValid(projectPayload.projectId)) {
-      return res.status(400).json({ message: "Invalid project ID" });
-    }
-    const project: ProjectType | null = await ProjectModel.findById(
-      projectPayload.projectId
-    );
-    if (!project) {
-      const error: AppError = new Error(
-        "Mock api not found, please create one."
-      );
-      error.status = 404;
       throw error;
     }
 
     const { endpoint, params } =
       findMatchingEndpoint(
-        project.endpoints,
-        mockPath,
+        projectData.endpoints,
+        mockApiPath,
         method as EndpointConfig["method"]
       ) || {};
 
     setTimeout(() => {
-      res.status(200).json({
-        status: "success",
-        data: {
-          path: mockPath,
-          method,
-          apiResponse: endpoint?.responseData,
-          statusCode: endpoint?.statusCode,
-          params,
-        },
-      });
+      res.status(endpoint?.statusCode || 200).json(endpoint?.responseData);
     }, endpoint?.delay || 0);
   } catch (error) {
     next(error);
