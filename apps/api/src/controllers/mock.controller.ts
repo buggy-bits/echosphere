@@ -1,17 +1,15 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { AppError } from "../middlewares/errorHandler.middleware";
-import mongoose from "mongoose";
-import ProjectModel, {
-  EndpointConfig,
-  ProjectType,
-} from "../models/project.model";
+import { EndpointConfig } from "../models/project.model";
 import { IMockRequest } from "../middlewares/mock.middleware";
+import { extractRouteInfo } from "../utils/mockUtils";
 
 const findMatchingEndpoint = (
   endpoints: EndpointConfig[],
   requestPath: string,
   requestMethod: EndpointConfig["method"]
 ) => {
+  // remove the first /
   const normalizedRequestPath = requestPath.replace(/^\/|\/$/g, "");
 
   for (const endpoint of endpoints) {
@@ -27,20 +25,14 @@ const findMatchingEndpoint = (
       match &&
       endpoint.method.toUpperCase() === requestMethod.toUpperCase()
     ) {
-      const paramNames = (
-        normalizedEndpointPath.match(/:\w+/g) || []
-      ).map((name) => name.substring(1));
-      const params: Record<string, string> = {};
+      const { resourcesWithParams } = extractRouteInfo(
+        normalizedEndpointPath,
+        normalizedRequestPath
+      );
 
-      if (match.length > 1) {
-        for (let i = 0; i < paramNames.length; i++) {
-          params[paramNames[i]] = match[i + 1];
-        }
-      }
-      return { endpoint, params };
+      return { endpoint, resourceData: resourcesWithParams };
     }
   }
-  console.log("nullll");
   return null;
 };
 
@@ -61,7 +53,7 @@ export const handleMockRequest = async (
       throw error;
     }
 
-    const { endpoint, params } =
+    const { endpoint, resourceData } =
       findMatchingEndpoint(
         projectData.endpoints,
         mockApiPath,
@@ -77,8 +69,27 @@ export const handleMockRequest = async (
       );
       return;
     }
+
+    if (!resourceData) {
+      console.log("No resources");
+      return;
+    }
+    // This basic project only supports single pathParms, for multiple, it might be more timetaking project
+    const dataFromResourece = resourceData[0];
+
+    const result = projectData.resources[dataFromResourece.resource].find(
+      (item: any) =>
+        item[dataFromResourece.param]?.toString() === dataFromResourece.value
+    );
+    console.log(result);
+    const responseData = endpoint?.preferDynamicResponse
+      ? result
+      : endpoint?.responseData;
+
     setTimeout(() => {
-      res.status(endpoint?.statusCode || 200).json(endpoint?.responseData);
+      res.status(endpoint?.statusCode || 200).json({
+        data: responseData,
+      });
     }, endpoint?.delay || 0);
   } catch (error) {
     next(error);

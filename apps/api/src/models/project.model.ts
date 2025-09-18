@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 export interface EndpointConfig {
   path: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
+  preferDynamicResponse: boolean;
   responseData: any;
   statusCode: number;
   delay: number;
@@ -13,7 +14,7 @@ export interface ProjectType extends Document {
   userId: mongoose.Types.ObjectId;
   projectName: string;
   endpoints: EndpointConfig[];
-  // resources: any;
+  resources: any;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,7 +61,6 @@ const projectSchema = new mongoose.Schema({
         default: 200,
       },
 
-      // Optional delay in milliseconds to simulate network latency
       delay: {
         type: Number,
         default: 0,
@@ -71,14 +71,18 @@ const projectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed,
         default: { status: "error", message: "Path not found" },
       },
+      preferDynamicResponse: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
 
   // This object will store the data for CRUD operations
-  // resources: {
-  //   type: mongoose.Schema.Types.Mixed,
-  //   default: {},
-  // },
+  resources: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {},
+  },
 
   createdAt: {
     type: Date,

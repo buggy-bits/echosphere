@@ -23,10 +23,8 @@ export const createProject = async (
       throw error;
     }
     const newProject = new ProjectModel({
+      ...project,
       userId: req?.user?.userId,
-      projectName: project.projectName,
-      endpoints: project.endpoints,
-      // resources: project.resources,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
