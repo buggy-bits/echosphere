@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export interface EndpointConfig {
   path: string;
+  description?: string;
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
   preferDynamicResponse: boolean;
   responseData: any;
@@ -40,7 +41,10 @@ const projectSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-
+      description: {
+        type: String,
+        required: false,
+      },
       // HTTP method: GET, POST, PUT, DELETE, etc.
       method: {
         type: String,

@@ -3,10 +3,7 @@ import { AppError } from "../middlewares/errorHandler.middleware";
 import ProjectModel, { ProjectType } from "../models/project.model";
 import { IAuthenticatedRequest } from "../middlewares/token.middleware";
 import UserModel from "../models/user.model";
-import { BACKEND_URL } from "../config/env";
 import mongoose from "mongoose";
-
-const BASE_URL = BACKEND_URL || "http://localhost:3000";
 
 export const createProject = async (
   req: IAuthenticatedRequest,
@@ -37,18 +34,12 @@ export const createProject = async (
         await user.save();
       }
 
-      const availableEndpoints = newProject.endpoints.map(
-        (endpoint) =>
-          BASE_URL + "/api/v1/projects/" + savedProject._id + endpoint.path
-      );
-
       res.status(201).json({
         status: "success",
         message: "Mock api created",
         data: {
           projectId: newProject._id,
           projectName: newProject.projectName,
-          endpoints: availableEndpoints,
         },
       });
     }
