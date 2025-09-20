@@ -1,8 +1,12 @@
-import cors from "cors";
+import cors from 'cors';
 
 const corsOptions: cors.CorsOptions = {
-  origin: ["*"], // Add your frontend URLs here
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: [
+    'http://localhost:8080',
+    'http://localhost:3000',
+    'http://localhost:5173',
+  ], // Add your frontend URLs here
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true, // Allow cookies if needed
 };
 

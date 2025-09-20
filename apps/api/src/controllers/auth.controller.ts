@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from "express";
-import { AppError } from "../middlewares/errorHandler.middleware";
-import UserModel, { UserType } from "../models/user.model";
-import bcrypt from "bcrypt";
+import { NextFunction, Request, Response } from 'express';
+import { AppError } from '../middlewares/errorHandler.middleware';
+import UserModel, { UserType } from '../models/user.model';
+import bcrypt from 'bcrypt';
 import {
   generateAccessToken,
   generateRefreshToken,
   TokenPayload,
-} from "../utils/token";
-import jwt from "jsonwebtoken";
-import { JWT_REFRESH_TOKEN_SECRET } from "../config/env";
+} from '../utils/token';
+import jwt from 'jsonwebtoken';
+import { JWT_REFRESH_TOKEN_SECRET } from '../config/env';
 const saltRounds = 10;
 
 export const registerUser = async (
@@ -21,7 +21,7 @@ export const registerUser = async (
 
     if (!email || !userName || !password) {
       const error: AppError = new Error(
-        "Email, Username and Password are required"
+        'Email, Username and Password are required'
       );
       error.status = 400;
       throw error;
@@ -32,7 +32,7 @@ export const registerUser = async (
         // if user already exists
         if (existingUser) {
           const error: AppError = new Error(
-            "User with given email or username already exists"
+            'User with given email or username already exists'
           );
           error.status = 409; // conflict
           next(error);
@@ -53,15 +53,15 @@ export const registerUser = async (
               .then(() => {
                 // return success response
                 res.status(201).json({
-                  status: "success",
-                  message: "User registered successfully.",
+                  status: 'success',
+                  message: 'User registered successfully.',
                   data: { userId: newUser._id, email, userName },
                 });
               })
               .catch((error) => {
                 // or error response
                 const err: AppError = new Error(
-                  "Database error: unable to save user"
+                  'Database error: unable to save user'
                 );
                 err.status = 500;
                 next(error);
@@ -81,14 +81,14 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      const error: AppError = new Error("Email and Password are required");
+      const error: AppError = new Error('Email and Password are required');
       error.status = 400;
       throw error;
     }
     // check for user existance
     UserModel.findOne({ email }).then((existingUser: UserType | null) => {
       if (!existingUser) {
-        const error: AppError = new Error("Invalid email or password");
+        const error: AppError = new Error('Invalid email or password');
         error.status = 401;
         return next(error);
       }
@@ -96,11 +96,11 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
       bcrypt.compare(password, existingUser.password, function (err, result) {
         if (!result) {
           // incorrect password
-          const error: AppError = new Error("Invalid email or password");
-          error.status = 401;
+          const error: AppError = new Error('Invalid email or password');
+          error.status = 403;
           return next(error);
         }
-        // correct password
+        // correct
         const accessToken = generateAccessToken({
           userId: existingUser._id.toString(),
         });
@@ -109,15 +109,15 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
           userId: existingUser._id.toString(),
         });
 
-        res.cookie("refreshToken", refreshToken, {
+        res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           secure: true,
-          sameSite: "strict",
+          sameSite: 'strict',
         });
 
         res.status(200).json({
-          status: "success",
-          message: "User login successfull",
+          status: 'success',
+          message: 'User login successfull',
           data: {
             userId: existingUser._id,
             email,
@@ -143,30 +143,30 @@ export const newAccessToken = async (
 
     const token = refreshTokenObj && refreshTokenObj.token;
     if (!token) {
-      const error: AppError = new Error("Refresh token missing");
+      const error: AppError = new Error('Refresh token missing');
       error.status = 401;
       return next(error);
     }
 
     const payload = jwt.verify(
       token,
-      JWT_REFRESH_TOKEN_SECRET || "i-am-key"
+      JWT_REFRESH_TOKEN_SECRET || 'i-am-key'
     ) as TokenPayload;
 
     const newToken = generateAccessToken({ userId: payload.userId });
 
     res.status(200).json({
-      status: "success",
-      message: "New access token generated",
+      status: 'success',
+      message: 'New access token generated',
       accessToken: newToken,
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      const jwtError: AppError = new Error("Invalid refresh token");
+      const jwtError: AppError = new Error('Invalid refresh token');
       jwtError.status = 401;
       return next(jwtError);
     } else if (error instanceof jwt.TokenExpiredError) {
-      const expiredError: AppError = new Error("Refresh token expired");
+      const expiredError: AppError = new Error('Refresh token expired');
       expiredError.status = 401;
       return next(expiredError);
     }
