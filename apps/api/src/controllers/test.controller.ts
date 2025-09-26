@@ -1,4 +1,5 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
+import { sendSuccess } from '../utils/responseHandler';
 
 export const greetByName = (
   req: Request,
@@ -6,10 +7,7 @@ export const greetByName = (
   next: NextFunction
 ) => {
   try {
-    res.status(200).json({
-      status: "success",
-      data: { message: `GOOD TO SEE YOU BRO` },
-    });
+    sendSuccess(res, {}, `GOOD TO SEE YOU BRO`, 200);
   } catch (error) {
     next(error);
   }

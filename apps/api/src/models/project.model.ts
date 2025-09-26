@@ -1,9 +1,10 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 export interface EndpointConfig {
+  _id: mongoose.Types.ObjectId;
   path: string;
   description?: string;
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS";
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS';
   preferDynamicResponse: boolean;
   responseData: any;
   statusCode: number;
@@ -23,7 +24,7 @@ export interface ProjectType extends Document {
 const projectSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
 
@@ -48,7 +49,7 @@ const projectSchema = new mongoose.Schema({
       // HTTP method: GET, POST, PUT, DELETE, etc.
       method: {
         type: String,
-        enum: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        enum: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         uppercase: true,
         required: true,
       },
@@ -73,7 +74,7 @@ const projectSchema = new mongoose.Schema({
       // Optional field for a custom 404 response
       notFoundResponse: {
         type: mongoose.Schema.Types.Mixed,
-        default: { status: "error", message: "Path not found" },
+        default: { status: 'error', message: 'Path not found' },
       },
       preferDynamicResponse: {
         type: Boolean,
@@ -99,6 +100,6 @@ const projectSchema = new mongoose.Schema({
   },
 });
 
-const ProjectModel = mongoose.model<ProjectType>("Projects", projectSchema);
+const ProjectModel = mongoose.model<ProjectType>('Projects', projectSchema);
 
 export default ProjectModel;

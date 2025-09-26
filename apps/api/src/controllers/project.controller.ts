@@ -1,9 +1,10 @@
-import { NextFunction, Request, Response } from "express";
-import { AppError } from "../middlewares/errorHandler.middleware";
-import ProjectModel, { ProjectType } from "../models/project.model";
-import { IAuthenticatedRequest } from "../middlewares/token.middleware";
-import UserModel from "../models/user.model";
-import mongoose from "mongoose";
+import { NextFunction, Request, Response } from 'express';
+import { AppError } from '../middlewares/errorHandler.middleware';
+import ProjectModel, { ProjectType } from '../models/project.model';
+import { IAuthenticatedRequest } from '../middlewares/token.middleware';
+import UserModel from '../models/user.model';
+import mongoose from 'mongoose';
+import { sendSuccess } from '../utils/responseHandler';
 
 export const createProject = async (
   req: IAuthenticatedRequest,
@@ -15,7 +16,7 @@ export const createProject = async (
 
     const { project } = req.body;
     if (!project) {
-      const error: AppError = new Error("Insufficient data to create project.");
+      const error: AppError = new Error('Insufficient data to create project.');
       error.status = 400;
       throw error;
     }
@@ -35,10 +36,10 @@ export const createProject = async (
       }
 
       res.status(201).json({
-        status: "success",
-        message: "Mock api created",
+        status: 'success',
+        message: 'Mock api created',
         data: {
-          projectId: newProject._id,
+          id: newProject._id,
           projectName: newProject.projectName,
         },
       });
@@ -56,23 +57,23 @@ export const getAllProjects = async (
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      const error: AppError = new Error("No user authentication.");
+      const error: AppError = new Error('No user authentication.');
       error.status = 400;
       throw error;
     }
     const projects = await ProjectModel.find({ userId }).select(
-      "_id projectName createdAt"
+      '_id projectName createdAt'
     );
 
     if (!projects) {
-      const error: AppError = new Error("No projects found.");
+      const error: AppError = new Error('No projects found.');
       error.status = 404;
       throw error;
     }
 
     res.status(200).json({
-      status: "success",
-      message: "All projects found",
+      status: 'success',
+      message: 'All projects found',
       data: {
         projects,
       },
@@ -90,21 +91,21 @@ export const getSingleProject = async (
   try {
     const { id } = req.params;
     if (!id) {
-      const error: AppError = new Error("No user authentication.");
+      const error: AppError = new Error('No user authentication.');
       error.status = 400;
       throw error;
     }
     const existingProject = await ProjectModel.findOne({ _id: id });
 
     if (!existingProject) {
-      const error: AppError = new Error("No projects found.");
+      const error: AppError = new Error('No projects found.');
       error.status = 404;
       throw error;
     }
 
     res.status(200).json({
-      status: "success",
-      message: "All projects found",
+      status: 'success',
+      message: 'All projects found',
       data: {
         project: existingProject,
       },
@@ -124,7 +125,7 @@ export const deleteSingleProject = async (
     const userId = req.user?.userId;
 
     if (!userId) {
-      const error: AppError = new Error("No user authentication.");
+      const error: AppError = new Error('No user authentication.');
       error.status = 400;
       throw error;
     }
@@ -132,7 +133,7 @@ export const deleteSingleProject = async (
     const existingProject = await ProjectModel.findOneAndDelete({ _id: id });
 
     if (!existingProject) {
-      const error: AppError = new Error("No projects found.");
+      const error: AppError = new Error('No projects found.');
       error.status = 404;
       throw error;
     }
@@ -146,7 +147,7 @@ export const deleteSingleProject = async (
     }
 
     res.status(200).json({
-      status: "success",
+      status: 'success',
     });
   } catch (error) {
     next(error);
@@ -163,13 +164,13 @@ export const updateSingleProject = async (
     const userId = req.user?.userId;
 
     if (!userId) {
-      const error: AppError = new Error("No user authentication.");
+      const error: AppError = new Error('No user authentication.');
       error.status = 400;
       throw error;
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid project ID" });
+      return res.status(400).json({ message: 'Invalid project ID' });
     }
     const { project } = req.body;
 
@@ -180,16 +181,18 @@ export const updateSingleProject = async (
     );
 
     if (!existingProject) {
-      const error: AppError = new Error("No projects found.");
+      const error: AppError = new Error('No projects found.');
       error.status = 404;
       throw error;
     }
 
     res.status(200).json({
-      status: "success",
+      status: 'success',
       project: existingProject,
     });
   } catch (error) {
     next(error);
   }
 };
+
+//  parts of a project
