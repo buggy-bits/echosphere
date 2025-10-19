@@ -1,6 +1,6 @@
-import { config } from "dotenv";
+import { config } from 'dotenv';
 
-config({ path: `.env.${process.env.NODE_ENV || "development"}.local` });
+config({ path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 export const {
   PORT,
@@ -8,5 +8,4 @@ export const {
   DB_URI,
   JWT_REFRESH_TOKEN_SECRET,
   JWT_ACCESS_TOKEN_SECRET,
-  BACKEND_URL,
 } = process.env;
